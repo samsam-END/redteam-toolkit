@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red Team Toolkit</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      padding: 2rem;
+    }
+    h1, h2 {
+      color: #00ff00;
+      text-shadow: 0 0 5px #0f0;
+    }
+    a {
+      color: #00ffcc;
+      text-decoration: none;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li::before {
+      content: "❯ ";
+      color: #0f0;
+    }
+    .section {
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>💻 Red Team Toolkit</h1>
+  <p>Everything I use for recon, exploitation, lateral movement, and AD attacks. Terminal-style. Hacker-style. Let's go.</p>
+
+  <div class="section">
+    <h2>🔍 Recon Tools</h2>
+    <ul>
+      <li><a href="https://shodan.io" target="_blank">Shodan</a></li>
+      <li><a href="https://ipinfo.io" target="_blank">IPInfo</a></li>
+      <li>nmap -sC -sV -A</li>
+      <li>amass enum -d target.com</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>🧑‍💻 Lateral Movement</h2>
+    <ul>
+      <li>crackmapexec smb</li>
+      <li>smbclient //host/share</li>
+      <li>evil-winrm</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>🧠 Active Directory Attacks</h2>
+    <ul>
+      <li>BloodHound + SharpHound</li>
+      <li>Kerberoasting (Impacket)</li>
+      <li>AS-REP Roasting</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <p><i>Made with 💀 by samy</i></p>
+  </div>
+</body>
+</html>
