@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Red Team Arsenal - samsam-END</title>
+  <title>Red Team Toolkit - samsam-END</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     body {
@@ -41,6 +41,56 @@
       font-size: 0.9rem;
       color: #777;
     }
+
+    /* CHATBOT TERMINAL STYLE */
+    #chatbot-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      font-family: 'Share Tech Mono', monospace;
+      z-index: 9999;
+    }
+
+    #chat-window {
+      background: #0d0d0d;
+      color: #33ff33;
+      border: 1px solid #33ff33;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #chat-log {
+      height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+
+    #chat-log .bot-msg, #chat-log .user-msg {
+      margin-bottom: 8px;
+    }
+
+    #chat-log .user-msg::before {
+      content: "You: ";
+      color: #00ffff;
+    }
+
+    #chat-log .bot-msg::before {
+      content: "Bot: ";
+      color: #33ff33;
+    }
+
+    #chat-input {
+      width: 100%;
+      border: none;
+      padding: 8px;
+      background: #000;
+      color: #33ff33;
+      outline: none;
+      border-top: 1px solid #33ff33;
+      font-family: 'Share Tech Mono', monospace;
+    }
   </style>
 </head>
 <body>
@@ -50,65 +100,103 @@
 
   <div class="category">
     <h2>🧠 Reconnaissance</h2>
-    <div class="tool"><a href="https://github.com/projectdiscovery/nmap" target="_blank">Nmap</a> – Network discovery & service detection</div>
-    <div class="tool"><a href="https://github.com/projectdiscovery/subfinder" target="_blank">Subfinder</a> – Subdomain enumeration</div>
-    <div class="tool"><a href="https://github.com/OWASP/Amass" target="_blank">Amass</a> – Asset discovery & mapping</div>
+    <div class="tool"><a href="https://github.com/projectdiscovery/nmap" target="_blank">Nmap</a> – Network discovery</div>
+    <div class="tool"><a href="https://github.com/projectdiscovery/subfinder" target="_blank">Subfinder</a> – Subdomain finder</div>
+    <div class="tool"><a href="https://github.com/OWASP/Amass" target="_blank">Amass</a> – Asset mapping</div>
     <div class="tool"><a href="https://github.com/maurosoria/dirsearch" target="_blank">dirsearch</a> – Web path brute-forcer</div>
-    <div class="tool"><a href="https://github.com/sqlmapproject/sqlmap" target="_blank">sqlmap</a> – Automated SQLi scanner</div>
+    <div class="tool"><a href="https://github.com/sqlmapproject/sqlmap" target="_blank">sqlmap</a> – SQL injection scanner</div>
   </div>
 
   <div class="category">
     <h2>🧰 Exploitation & Payloads</h2>
-    <div class="tool"><a href="https://github.com/rapid7/metasploit-framework" target="_blank">Metasploit Framework</a> – Exploits & payloads</div>
+    <div class="tool"><a href="https://github.com/rapid7/metasploit-framework" target="_blank">Metasploit</a> – Exploits & shells</div>
     <div class="tool"><a href="https://github.com/fortra/impacket" target="_blank">Impacket</a> – SMB/AD exploitation</div>
-    <div class="tool"><a href="https://github.com/payloadbox/payloadbox" target="_blank">PayloadsAllTheThings</a> – XSS, SSRF, LFI, more</div>
-    <div class="tool"><a href="https://github.com/carlospolop/PEASS-ng" target="_blank">PEASS-ng</a> – PrivEsc on Linux/Windows</div>
+    <div class="tool"><a href="https://github.com/payloadbox/payloadbox" target="_blank">PayloadsAllTheThings</a> – Payload cheat sheet</div>
+    <div class="tool"><a href="https://github.com/carlospolop/PEASS-ng" target="_blank">PEASS-ng</a> – Privilege escalation</div>
   </div>
 
   <div class="category">
-    <h2>🎯 Active Directory & Privilege Escalation</h2>
-    <div class="tool"><a href="https://github.com/ropnop/go-windapsearch" target="_blank">windapsearch</a> – LDAP enumeration</div>
-    <div class="tool"><a href="https://github.com/BloodHoundAD/BloodHound" target="_blank">BloodHound</a> – AD attack path mapping</div>
-    <div class="tool"><a href="https://github.com/GhostPack/Seatbelt" target="_blank">Seatbelt</a> – Post-exploitation AD info gathering</div>
-    <div class="tool"><a href="https://github.com/PowerShellMafia/PowerSploit" target="_blank">PowerSploit</a> – AD enumeration and attacks</div>
+    <h2>🎯 Active Directory & Priv Esc</h2>
+    <div class="tool"><a href="https://github.com/BloodHoundAD/BloodHound" target="_blank">BloodHound</a> – AD attack graphing</div>
+    <div class="tool"><a href="https://github.com/GhostPack/Seatbelt" target="_blank">Seatbelt</a> – AD recon</div>
+    <div class="tool"><a href="https://github.com/PowerShellMafia/PowerSploit" target="_blank">PowerSploit</a> – AD & Post-exploitation</div>
   </div>
 
   <div class="category">
-    <h2>🛰️ Command & Control (C2)</h2>
+    <h2>🛰️ C2 & Bypasses</h2>
     <div class="tool"><a href="https://github.com/BC-SECURITY/Empire" target="_blank">Empire</a> – Post-exploitation C2</div>
-    <div class="tool"><a href="https://github.com/sliverarmory/sliver" target="_blank">Sliver</a> – Cross-platform C2 framework</div>
-    <div class="tool"><a href="https://github.com/its-a-feature/Mythic" target="_blank">Mythic</a> – Customizable C2 framework</div>
-    <div class="tool"><a href="https://github.com/kgretzky/evilginx2" target="_blank">Evilginx2</a> – Phishing & token stealing</div>
-  </div>
-
-  <div class="category">
-    <h2>🧪 AV/EDR Bypass & Evasion</h2>
-    <div class="tool"><a href="https://github.com/optiv/ScareCrow" target="_blank">ScareCrow</a> – EDR evasion with shellcode loaders</div>
-    <div class="tool"><a href="https://github.com/chvancooten/RedELK" target="_blank">RedELK</a> – C2 & beacon tracking in red ops</div>
-    <div class="tool"><a href="https://github.com/FortyNorthSecurity/Egress-Assess" target="_blank">Egress-Assess</a> – Test data exfiltration channels</div>
+    <div class="tool"><a href="https://github.com/sliverarmory/sliver" target="_blank">Sliver</a> – Cross-platform C2</div>
+    <div class="tool"><a href="https://github.com/kgretzky/evilginx2" target="_blank">Evilginx2</a> – Phishing & MITM</div>
+    <div class="tool"><a href="https://github.com/optiv/ScareCrow" target="_blank">ScareCrow</a> – Shellcode loader</div>
   </div>
 
   <div class="category">
     <h2>💾 Post-Exploitation</h2>
-    <div class="tool"><a href="https://github.com/GhostPack/SharpDump" target="_blank">SharpDump</a> – LSASS dumping for creds</div>
-    <div class="tool"><a href="https://github.com/SnaffCon/Snaffler" target="_blank">Snaffler</a> – File share searcher for juicy data</div>
-    <div class="tool"><a href="https://github.com/dafthack/HostRecon" target="_blank">HostRecon</a> – Collect host-based info</div>
-    <div class="tool"><a href="https://github.com/0xZDH/sudo-priv" target="_blank">sudo-priv</a> – Linux sudo privilege check</div>
+    <div class="tool"><a href="https://github.com/GhostPack/SharpDump" target="_blank">SharpDump</a> – Credential dumping</div>
+    <div class="tool"><a href="https://github.com/SnaffCon/Snaffler" target="_blank">Snaffler</a> – File share looter</div>
+    <div class="tool"><a href="https://github.com/dafthack/HostRecon" target="_blank">HostRecon</a> – System info gathering</div>
   </div>
 
   <div class="category">
-    <h2>📚 Learning & Resources</h2>
-    <div class="tool"><a href="https://attack.mitre.org/" target="_blank">MITRE ATT&CK</a> – Adversary tactics & techniques</div>
-    <div class="tool"><a href="https://redteam.guide/" target="_blank">Red Team Guide</a> – Offensive security wiki</div>
-    <div class="tool"><a href="https://lolbas-project.github.io/" target="_blank">LOLBAS</a> – Living Off The Land Binaries</div>
-    <div class="tool"><a href="https://tryhackme.com" target="_blank">TryHackMe</a> / <a href="https://hackthebox.com" target="_blank">HackTheBox</a> – Lab platforms</div>
+    <h2>📚 Learning</h2>
+    <div class="tool"><a href="https://attack.mitre.org/" target="_blank">MITRE ATT&CK</a> – Techniques & tactics</div>
+    <div class="tool"><a href="https://redteam.guide/" target="_blank">Red Team Guide</a> – Playbooks & tools</div>
+    <div class="tool"><a href="https://lolbas-project.github.io/" target="_blank">LOLBAS</a> – Living off the land</div>
   </div>
 
   <div class="footer">
-    Made by <strong>samsam-END</strong> • 💀 Trained in the dark to serve the light.
+    Made with 🖤 by <strong>samsam-END</strong> • Red Team Operator
   </div>
+
+  <!-- CHATBOT TERMINAL -->
+  <div id="chatbot-container">
+    <div id="chat-window">
+      <div id="chat-log">
+        <div class="bot-msg">👾 TerminalBot: Ask me anything red team related.</div>
+      </div>
+      <input id="chat-input" type="text" placeholder="Type a command..." autocomplete="off">
+    </div>
+  </div>
+
+  <script>
+    const chatLog = document.getElementById("chat-log");
+    const chatInput = document.getElementById("chat-input");
+
+    const responses = {
+      "recon": "Try tools like Nmap, Amass, Subfinder, or Recon-ng.",
+      "exploitation": "Look into Metasploit, PayloadsAllTheThings, or sqlmap.",
+      "priv esc": "Check PEASS-ng, WinPEAS, LinPEAS, or GTFOBins.",
+      "c2": "Great C2 tools include Sliver, Empire, and Mythic.",
+      "ad": "Use BloodHound, PowerView, SharpHound for AD attacks.",
+      "bye": "Later, operator. Stay stealthy.",
+      "default": "I only speak Red Team. Try keywords like 'recon', 'AD', 'priv esc', etc."
+    };
+
+    chatInput.addEventListener("keydown", function(event) {
+      if (event.key === "Enter" && chatInput.value.trim() !== "") {
+        const userInput = chatInput.value.trim().toLowerCase();
+        chatLog.innerHTML += `<div class="user-msg">${userInput}</div>`;
+
+        let botReply = responses.default;
+        for (let key in responses) {
+          if (userInput.includes(key)) {
+            botReply = responses[key];
+            break;
+          }
+        }
+
+        setTimeout(() => {
+          chatLog.innerHTML += `<div class="bot-msg">${botReply}</div>`;
+          chatLog.scrollTop = chatLog.scrollHeight;
+        }, 300);
+
+        chatInput.value = "";
+      }
+    });
+  </script>
 
 </body>
 </html>
+
 
 
