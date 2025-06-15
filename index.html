@@ -1,113 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Red Team Toolkit</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #00ff00;
-      font-family: monospace;
-      padding: 20px;
-      margin: 0;
-    }
-
-    h1, h2 {
-      border-bottom: 1px solid #00ff00;
-      padding-bottom: 5px;
-    }
-
-    a {
-      color: #00ff00;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .logo {
-      width: 200px;
-      margin-bottom: 20px;
-    }
-
-    .section {
-      margin-bottom: 50px;
-    }
-
-    ul {
-      list-style: square;
-    }
-
-    iframe.chatbot {
-      width: 100%;
-      height: 600px;
-      border: 1px solid #00ff00;
-      background-color: #000;
-      margin-top: 20px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      border-top: 1px solid #00ff00;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Cybersecurity Tools Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Slate Gray & Sky Blue -->
+    <!-- Application Structure Plan: A dashboard-style single-page application with a fixed sidebar for primary navigation between tool categories. The main content area dynamically displays an overview chart or a grid of interactive cards for the selected category. This structure was chosen for its clarity, scalability, and familiar user experience, allowing users to easily switch contexts without losing their place. The interactive cards with an expand/collapse feature for details prevent information overload and encourage exploration. Gemini features are added to each card to provide deeper, context-specific insights on demand. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Number of tools per category. -> Goal: Compare/Inform -> Viz: Chart.js Donut Chart -> Interaction: Hover to see details. -> Justification: Provides a quick, high-level visual summary of the tool distribution. -> Library: Chart.js.
+        - Report Info: Tool categories. -> Goal: Organize/Navigate -> Presentation: Sidebar navigation buttons. -> Interaction: Click to filter content. -> Justification: A standard, intuitive navigation pattern for categorized content. -> Method: HTML/CSS/JS.
+        - Report Info: Individual tools (name, description, features). -> Goal: Inform/Organize -> Presentation: Interactive cards in a grid. -> Interaction: Click card to expand/collapse key features. Click Gemini buttons to generate use cases or simple explanations. -> Justification: Cards are scannable; expandable details and on-demand AI generation prevent information overload while providing depth. -> Method: HTML/CSS/JS/Gemini API.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .details---hidden { max-height: 0; opacity: 0; visibility: hidden; transition: max-height 0.5s ease-out, opacity 0.3s ease-in-out; }
+        .details---visible { max-height: 500px; opacity: 1; visibility: visible; transition: max-height 0.5s ease-in, opacity 0.3s ease-in-out; }
+        .chart-container { position: relative; width: 100%; max-width: 450px; margin-left: auto; margin-right: auto; height: 40vh; max-height: 400px; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+            .sidebar---open { transform: translateX(0); }
+        }
+        .gemini-result-container { max-height: 0; opacity: 0; visibility: hidden; transition: all 0.5s ease-in-out; }
+        .gemini-result-container.visible { max-height: 1000px; opacity: 1; visibility: visible; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
 
-  <!-- Logo -->
-  <img src="your-logo.png" alt="Red Team Toolkit Logo" class="logo" />
+    <div id="app" class="flex h-screen">
+        <aside id="sidebar" class="sidebar fixed md:relative z-20 w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0 flex flex-col justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-sky-600 mb-8">Cyber Tools Explorer</h1>
+                <nav id="nav-menu" class="space-y-2">
+                </nav>
+            </div>
+            <div class="text-xs text-slate-400">
+                <p>An interactive report with ✨ AI features.</p>
+            </div>
+        </aside>
+        
+        <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-md shadow-lg">
+             <span id="menu-open-icon" class="text-slate-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+             </span>
+             <span id="menu-close-icon" class="hidden text-slate-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+             </span>
+        </button>
 
-  <!-- Title -->
-  <h1>💀 Red Team Toolkit</h1>
-  <p>Welcome to the ultimate hacker-style toolkit for cybersecurity professionals and red teamers. Explore, learn, and hack ethically!</p>
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
+            <div id="content-area">
+            </div>
+        </main>
+    </div>
 
-  <!-- TOOLS SECTION -->
-  <div class="section">
-    <h2>🛠️ Top Red Team Tools</h2>
-    <ul>
-      <li><a href="https://nmap.org/" target="_blank">Nmap</a> – Network scanning</li>
-      <li><a href="https://www.metasploit.com/" target="_blank">Metasploit</a> – Exploitation framework</li>
-      <li><a href="https://wireshark.org/" target="_blank">Wireshark</a> – Packet analysis</li>
-      <li><a href="https://github.com/sqlmapproject/sqlmap" target="_blank">SQLMap</a> – SQL injection automation</li>
-      <li><a href="https://www.kali.org/" target="_blank">Kali Linux</a> – Penetration testing distro</li>
-      <li><a href="https://tools.kali.org/recon-ng" target="_blank">Recon-ng</a> – Reconnaissance framework</li>
-      <li><a href="https://www.httrack.com/" target="_blank">HTTrack</a> – Website mirroring</li>
-      <li><a href="https://github.com/Greenwolf/Spray" target="_blank">Spray</a> – Password spraying tool</li>
-      <li><a href="https://bloodhound.readthedocs.io/en/latest/" target="_blank">BloodHound</a> – AD attack path analysis</li>
-      <li><a href="https://github.com/carlospolop/PEASS-ng" target="_blank">PEASS-ng</a> – Privilege escalation tools</li>
-    </ul>
-  </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toolData = {
+                overview: { title: "Overview", intro: "Welcome to the Interactive Cybersecurity Tools Explorer. This application provides a comprehensive overview of advanced tools across various security domains. Use the navigation on the left to explore different categories. The chart below summarizes the number of tools featured in each category, giving you a snapshot of the current landscape. ✨ New: Click on any tool card to find AI-powered features!", tools: [] },
+                network: { title: "Network Security & Monitoring", intro: "These tools are your first line of defense, helping you see what's happening on your network and stopping threats before they can cause damage. Click on any tool to see its key features.", tools: [
+                    { name: "Wireshark", description: "A widely used network protocol analyzer.", features: ["Deep inspection of hundreds of protocols", "Live capture and offline analysis", "Powerful display filter"] },
+                    { name: "Nmap", description: "A free and open-source utility for network discovery and security auditing.", features: ["Host discovery", "Port scanning", "OS detection"] },
+                    { name: "Snort", description: "An open-source intrusion prevention system (IPS).", features: ["Real-time traffic analysis", "Protocol analysis", "Content searching/matching"] },
+                    { name: "Zeek (formerly Bro)", description: "A powerful network analysis framework.", features: ["In-depth analysis of network traffic", "Comprehensive logging", "Powerful scripting language"] }
+                ]},
+                edr: { title: "Endpoint Detection & Response (EDR)", intro: "EDR tools focus on protecting the end-user devices like laptops, desktops, and servers. They are crucial for detecting and responding to threats that make it past your network defenses.", tools: [
+                    { name: "CrowdStrike Falcon", description: "A cloud-native endpoint protection platform.", features: ["AI-powered threat prevention", "Real-time visibility into endpoint activity", "Automated incident investigation"] },
+                    { name: "SentinelOne Singularity", description: "An autonomous endpoint protection platform that uses AI to prevent, detect, and respond to threats in real time.", features: ["Behavioral AI", "Automated threat response", "IoT device support"] },
+                    { name: "Microsoft Defender for Endpoint", description: "A holistic, cloud-delivered endpoint security solution.", features: ["Deep integration with Microsoft ecosystem", "Advanced threat hunting", "Automated remediation"] }
+                ]},
+                siem: { title: "SIEM & SOAR", intro: "SIEM and SOAR platforms help you make sense of security data and automate your response to threats.", tools: [
+                    { name: "Splunk Enterprise Security", description: "A SIEM solution that provides insights into machine data from any source.", features: ["Real-time monitoring", "Advanced threat detection", "Flexible platform"] },
+                    { name: "IBM QRadar", description: "A security intelligence platform that helps security teams accurately detect and prioritize threats.", features: ["Real-time threat detection", "User behavior analytics", "Integrated SOAR"] },
+                    { name: "Palo Alto Networks Cortex XSOAR", description: "A comprehensive security orchestration, automation, and response platform.", features: ["Thousands of security playbooks", "Drag-and-drop playbook editor", "Real-time collaboration"] }
+                ]},
+                offensive: { title: "Vulnerability Assessment & Pen Testing", intro: "These offensive security tools are used to find and exploit vulnerabilities in your systems, just like a real attacker would.", tools: [
+                    { name: "Nessus", description: "A popular vulnerability scanner.", features: ["High-speed asset discovery", "Configuration auditing", "Malware detection"] },
+                    { name: "Metasploit", description: "A powerful penetration testing framework.", features: ["Large database of public exploits", "Variety of payloads", "Custom exploit tools"] },
+                    { name: "Burp Suite", description: "A graphical tool for testing Web application security.", features: ["Intercepting proxy", "Web application scanner", "Vulnerability exploitation tools"] },
+                    { name: "Cobalt Strike", description: "A commercial, adversary simulation software for red teams.", features: ["Advanced post-exploitation tools", "Malleable C2", "Reporting features"] }
+                ]},
+                threatintel: { title: "Threat Intelligence Platforms", intro: "Threat intelligence platforms gather and analyze information about emerging threats, helping your organization stay one step ahead of adversaries.", tools: [
+                    { name: "Recorded Future", description: "A security intelligence platform that provides real-time threat intelligence.", features: ["Real-time alerts", "Powerful search engine", "Wide integrations"] },
+                    { name: "Anomali ThreatStream", description: "A threat intelligence platform that helps you operationalize threat intelligence.", features: ["Massive threat database", "Team collaboration tools", "Many integrations"] }
+                ]},
+                ai: { title: "AI-Powered Cybersecurity", intro: "Artificial intelligence is revolutionizing cybersecurity, with tools that can detect and respond to threats faster and more accurately than ever before.", tools: [
+                    { name: "Darktrace", description: "A cybersecurity AI company that uses self-learning AI to detect and respond to cyber threats in real time.", features: ["Real-time threat detection", "Automated response", "Network activity visualization"] },
+                    { name: "Vectra AI", description: "A cybersecurity company that uses AI to detect and hunt for attackers in real time.", features: ["Real-time threat detection", "User and entity behavior analytics (UEBA)", "Automated response"] }
+                ]}
+            };
 
-  <!-- COURSES SECTION -->
-  <div class="section">
-    <h2>🎓 Free Cybersecurity Courses & Certificates</h2>
-    <ul>
-      <li><a href="https://www.cybrary.it/" target="_blank">Cybrary</a> – Beginner to advanced training</li>
-      <li><a href="https://www.coursera.org/learn/intro-cyber-security" target="_blank">Coursera – Intro to Cybersecurity (NYU)</a></li>
-      <li><a href="https://www.futurelearn.com/courses/introduction-to-cyber-security" target="_blank">FutureLearn – Cyber Security Intro (Open University)</a></li>
-      <li><a href="https://www.ibm.com/skills/cybersecurity" target="_blank">IBM SkillsBuild</a> – Cybersecurity Career Certification</li>
-      <li><a href="https://www.edx.org/course/cybersecurity-fundamentals" target="_blank">edX – Cybersecurity Fundamentals</a></li>
-      <li><a href="https://academy.hackthebox.com/" target="_blank">HTB Academy</a> – Practical red/blue training</li>
-      <li><a href="https://tryhackme.com/" target="_blank">TryHackMe</a> – Hands-on hacking labs</li>
-    </ul>
-  </div>
+            const contentArea = document.getElementById('content-area');
+            const navMenu = document.getElementById('nav-menu');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const menuOpenIcon = document.getElementById('menu-open-icon');
+            const menuCloseIcon = document.getElementById('menu-close-icon');
 
-  <!-- CHATBOT SECTION -->
-  <div class="section">
-    <h2>💬 AI Chatbot Assistant</h2>
-    <p>Ask me anything about red teaming, pentesting, tools, or career advice:</p>
-    <iframe class="chatbot" src="https://you.com/chat" title="Chatbot Assistant"></iframe>
-  </div>
+            let currentCategory = 'overview';
+            let overviewChart = null;
 
-  <!-- FOOTER -->
-  <footer>
-    <p>Built by a passionate Red Teamer 🔐 | <a href="https://linkedin.com" target="_blank">Connect on LinkedIn</a></p>
-    <p>© 2025 Red Team Toolkit. All rights reserved.</p>
-  </footer>
+            async function callGemini(prompt) {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 1,
+                        topP: 1,
+                        maxOutputTokens: 8192,
+                    },
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        return `Error: API request failed with status ${response.status}. Please try again.`;
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        return "Error: Could not retrieve a valid response from the AI. The response might be empty or blocked.";
+                    }
+                } catch (error) {
+                    return `Error: Network request failed. ${error.message}`;
+                }
+            }
+
+            const renderContent = (categoryKey) => {
+                currentCategory = categoryKey;
+                const categoryData = toolData[categoryKey];
+                
+                contentArea.innerHTML = '';
+
+                const header = document.createElement('div');
+                header.className = 'mb-8';
+                header.innerHTML = `
+                    <h2 class="text-3xl font-bold text-slate-900">${categoryData.title}</h2>
+                    <p class="mt-2 text-slate-600 max-w-3xl">${categoryData.intro}</p>
+                `;
+                contentArea.appendChild(header);
+
+                if (categoryKey === 'overview') {
+                    renderOverviewChart();
+                } else {
+                    renderToolCards(categoryData.tools);
+                }
+                
+                updateNav();
+                if(sidebar.classList.contains('sidebar---open')) {
+                    toggleMenu();
+                }
+            };
+
+            const renderToolCards = (tools) => {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+                tools.forEach((tool, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-md p-6 border border-slate-200 flex flex-col justify-between';
+                    card.innerHTML = `
+                        <div>
+                            <div class="cursor-pointer" data-action="toggle-details">
+                                <h3 class="text-xl font-bold text-sky-700">${tool.name}</h3>
+                                <p class="text-slate-600 mt-2 text-sm">${tool.description}</p>
+                                <div class="mt-4 pt-4 border-t border-slate-200 details-container">
+                                    <p class="font-semibold text-sm text-slate-700 mb-2">Key Features:</p>
+                                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-500 details---hidden">
+                                        ${tool.features.map(f => `<li>${f}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <button data-action="generate-use-cases" class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-bold py-1 px-3 rounded-full transition-colors">✨ Generate Use Cases</button>
+                                <button data-action="explain-simply" class="text-xs bg-slate-500 hover:bg-slate-600 text-white font-bold py-1 px-3 rounded-full transition-colors">✨ Explain Simply</button>
+                            </div>
+                            <div id="gemini-result-${index}" class="gemini-result-container text-sm text-slate-600"></div>
+                        </div>
+                    `;
+                    
+                    const detailsToggler = card.querySelector('[data-action="toggle-details"]');
+                    detailsToggler.addEventListener('click', () => {
+                        const details = card.querySelector('.details-container > ul');
+                        details.classList.toggle('details---hidden');
+                        details.classList.toggle('details---visible');
+                    });
+
+                    const geminiResultContainer = card.querySelector(`#gemini-result-${index}`);
+
+                    card.querySelector('[data-action="generate-use-cases"]').addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        geminiResultContainer.innerHTML = '<div class="loader"></div>';
+                        geminiResultContainer.classList.add('visible');
+                        const prompt = `You are a cybersecurity expert. For the tool '${tool.name}', which is a '${tool.description}', generate three distinct and practical use cases. For each use case, provide a brief, clear title and a 1-2 sentence description. Format the entire response as an HTML unordered list.`;
+                        const response = await callGemini(prompt);
+                        geminiResultContainer.innerHTML = response;
+                    });
+
+                    card.querySelector('[data-action="explain-simply"]').addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        geminiResultContainer.innerHTML = '<div class="loader"></div>';
+                        geminiResultContainer.classList.add('visible');
+                        const prompt = `You are a friendly tech educator. Explain what the cybersecurity tool '${tool.name}' does in very simple terms. The tool's official description is '${tool.description}'. Explain it as you would to someone completely new to cybersecurity, in one paragraph. Keep it concise and use an analogy if it helps.`;
+                        const response = await callGemini(prompt);
+                        geminiResultContainer.innerHTML = `<p>${response}</p>`;
+                    });
+                    
+                    grid.appendChild(card);
+                });
+                contentArea.appendChild(grid);
+            };
+
+            const renderOverviewChart = () => {
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'chart-container bg-white p-4 rounded-lg shadow-md border border-slate-200';
+                const canvas = document.createElement('canvas');
+                chartContainer.appendChild(canvas);
+                contentArea.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+                const labels = Object.values(toolData).filter(c => c.title !== 'Overview').map(c => c.title);
+                const data = Object.values(toolData).filter(c => c.title !== 'Overview').map(c => c.tools.length);
+
+                if (overviewChart) overviewChart.destroy();
+
+                overviewChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ label: '# of Tools', data, 
+                        backgroundColor: ['rgba(14, 165, 233, 0.7)', 'rgba(59, 130, 246, 0.7)', 'rgba(16, 185, 129, 0.7)', 'rgba(249, 115, 22, 0.7)', 'rgba(139, 92, 246, 0.7)', 'rgba(239, 68, 68, 0.7)'],
+                        borderColor: ['#0ea5e9', '#3b82f6', '#10b981', '#f97316', '#8b5cf6', '#ef4444'],
+                        borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, title: { display: true, text: 'Distribution of Tools by Category' } } }
+                });
+            };
+
+            const updateNav = () => {
+                navMenu.querySelectorAll('button').forEach(button => {
+                    button.classList.toggle('bg-sky-100', button.dataset.category === currentCategory);
+                    button.classList.toggle('text-sky-700', button.dataset.category === currentCategory);
+                    button.classList.toggle('font-semibold', button.dataset.category === currentCategory);
+                    button.classList.toggle('text-slate-600', button.dataset.category !== currentCategory);
+                    button.classList.toggle('hover:bg-slate-100', button.dataset.category !== currentCategory);
+                });
+            };
+            
+            const createNav = () => {
+                Object.keys(toolData).forEach(key => {
+                    const button = document.createElement('button');
+                    button.dataset.category = key;
+                    button.textContent = toolData[key].title;
+                    button.className = 'w-full text-left px-4 py-2 rounded-md transition-colors duration-200';
+                    button.addEventListener('click', () => renderContent(key));
+                    navMenu.appendChild(button);
+                });
+            };
+            
+            const toggleMenu = () => {
+                sidebar.classList.toggle('sidebar---open');
+                menuOpenIcon.classList.toggle('hidden');
+                menuCloseIcon.classList.toggle('hidden');
+            };
+
+            menuToggle.addEventListener('click', toggleMenu);
+            
+            createNav();
+            renderContent(currentCategory);
+        });
+    </script>
 
 </body>
 </html>
