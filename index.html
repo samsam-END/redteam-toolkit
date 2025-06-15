@@ -6,19 +6,11 @@
     <title>Interactive Cybersecurity Tools Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chosen Palette: Slate Gray & Sky Blue -->
-    <!-- Application Structure Plan: A dashboard-style single-page application with a fixed sidebar for primary navigation between tool categories. The main content area dynamically displays an overview chart or a grid of interactive cards for the selected category. This structure was chosen for its clarity, scalability, and familiar user experience, allowing users to easily switch contexts without losing their place. The interactive cards with an expand/collapse feature for details prevent information overload and encourage exploration. Gemini features are added to each card to provide deeper, context-specific insights on demand. -->
-    <!-- Visualization & Content Choices:
-        - Report Info: Number of tools per category. -> Goal: Compare/Inform -> Viz: Chart.js Donut Chart -> Interaction: Hover to see details. -> Justification: Provides a quick, high-level visual summary of the tool distribution. -> Library: Chart.js.
-        - Report Info: Tool categories. -> Goal: Organize/Navigate -> Presentation: Sidebar navigation buttons. -> Interaction: Click to filter content. -> Justification: A standard, intuitive navigation pattern for categorized content. -> Method: HTML/CSS/JS.
-        - Report Info: Individual tools (name, description, features). -> Goal: Inform/Organize -> Presentation: Interactive cards in a grid. -> Interaction: Click card to expand/collapse key features. Click Gemini buttons to generate use cases or simple explanations. -> Justification: Cards are scannable; expandable details and on-demand AI generation prevent information overload while providing depth. -> Method: HTML/CSS/JS/Gemini API.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         .details---hidden { max-height: 0; opacity: 0; visibility: hidden; transition: max-height 0.5s ease-out, opacity 0.3s ease-in-out; }
         .details---visible { max-height: 500px; opacity: 1; visibility: visible; transition: max-height 0.5s ease-in, opacity 0.3s ease-in-out; }
         .chart-container { position: relative; width: 100%; max-width: 450px; margin-left: auto; margin-right: auto; height: 40vh; max-height: 400px; }
@@ -48,21 +40,24 @@
     <div id="app" class="flex h-screen">
         <aside id="sidebar" class="sidebar fixed md:relative z-20 w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0 flex flex-col justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-sky-600 mb-8">Cyber Tools Explorer</h1>
-                <nav id="nav-menu" class="space-y-2">
-                </nav>
+                <h1 class="text-2xl font-bold text-sky-600 mb-4">Cyber Tools Explorer</h1>
+                <div class="mb-8">
+                    <label for="api-key-input" class="block text-sm font-medium text-slate-700">Your Google AI API Key</label>
+                    <input type="password" id="api-key-input" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" placeholder="Enter your key here">
+                </div>
+                <nav id="nav-menu" class="space-y-2"></nav>
             </div>
             <div class="text-xs text-slate-400">
                 <p>An interactive report with ✨ AI features.</p>
             </div>
         </aside>
-        
+
         <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-md shadow-lg">
              <span id="menu-open-icon" class="text-slate-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
              </span>
              <span id="menu-close-icon" class="hidden text-slate-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
              </span>
         </button>
 
@@ -114,13 +109,20 @@
             const sidebar = document.getElementById('sidebar');
             const menuOpenIcon = document.getElementById('menu-open-icon');
             const menuCloseIcon = document.getElementById('menu-close-icon');
+            const apiKeyInput = document.getElementById('api-key-input');
 
             let currentCategory = 'overview';
             let overviewChart = null;
 
             async function callGemini(prompt) {
-                const apiKey = "AIzaSyDAiqsR3EUSnlYihJxnMNiO-KlnCBNuAoA";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const apiKey = apiKeyInput.value;
+                if (!apiKey) {
+                    return "Error: Please enter your Google AI API Key in the sidebar.";
+                }
+                
+                // CORRECTION: Utilisation du nom de modèle correct
+                const modelName = "gemini-1.5-flash-latest";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
                 
                 const payload = {
                     contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -140,7 +142,7 @@
                     });
 
                     if (!response.ok) {
-                        return `Error: API request failed with status ${response.status}. Please try again.`;
+                        return `Error: API request failed with status ${response.status}. Check if your API key is correct and has access to the '${modelName}' model.`;
                     }
 
                     const result = await response.json();
@@ -149,6 +151,10 @@
                         result.candidates[0].content.parts.length > 0) {
                         return result.candidates[0].content.parts[0].text;
                     } else {
+                         // Gérer les blocages de sécurité et autres réponses vides
+                        if (result.candidates && result.candidates[0].finishReason === 'SAFETY') {
+                             return "Error: The response was blocked due to safety settings. Try a different prompt.";
+                        }
                         return "Error: Could not retrieve a valid response from the AI. The response might be empty or blocked.";
                     }
                 } catch (error) {
@@ -278,6 +284,7 @@
                 Object.keys(toolData).forEach(key => {
                     const button = document.createElement('button');
                     button.dataset.category = key;
+                    // CORRECTION: Ligne dupliquée supprimée
                     button.textContent = toolData[key].title;
                     button.className = 'w-full text-left px-4 py-2 rounded-md transition-colors duration-200';
                     button.addEventListener('click', () => renderContent(key));
@@ -300,7 +307,3 @@
 
 </body>
 </html>
-
-
-
-
